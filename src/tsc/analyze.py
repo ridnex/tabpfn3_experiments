@@ -22,7 +22,15 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def load_ours(path: Path, datasets: list[str], n_resamples: int) -> pd.DataFrame:
-    df = pd.read_csv(path)
+    # One CSV per resample (see run.py --out); accept either a directory of them
+    # or a single file, so an ad-hoc run stays analysable.
+    if path.is_dir():
+        files = sorted(path.glob("resample_*.csv"))
+        if not files:
+            raise SystemExit(f"no resample_*.csv under {path}")
+        df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+    else:
+        df = pd.read_csv(path)
     df = df[df.dataset.isin(datasets) & (df.resample < n_resamples)]
     # Guard against a half-finished sweep being averaged as if complete: a
     # dataset with 3 of 30 resamples would otherwise silently get a noisier
@@ -38,7 +46,7 @@ def load_ours(path: Path, datasets: list[str], n_resamples: int) -> pd.DataFrame
 
 def main() -> int:
     p = argparse.ArgumentParser()
-    p.add_argument("--results", default=str(ROOT / "results" / "rocketpfn_ucr.csv"))
+    p.add_argument("--results", default=str(ROOT / "results" / "rocketpfn"))
     p.add_argument("--config", default=str(ROOT / "configs" / "ucr20.json"))
     p.add_argument("--resamples", type=int, default=30)
     p.add_argument("--report", default=str(ROOT / "reports" / "rocketpfn.md"))

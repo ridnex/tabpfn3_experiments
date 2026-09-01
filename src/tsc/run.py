@@ -53,7 +53,12 @@ def main() -> int:
     p.add_argument("--groups", type=int, default=10)
     p.add_argument("--kernels", type=int, default=1000)
     p.add_argument("--device", default="cuda")
-    p.add_argument("--out", default=str(ROOT / "results" / "rocketpfn_ucr.csv"))
+    p.add_argument(
+        "--out", default=None,
+        help="default results/rocketpfn/resample_NN.csv. One file per resample "
+             "because 30 concurrent array tasks appending to a single CSV "
+             "interleave mid-row and corrupt it. analyze.py globs them back.",
+    )
     p.add_argument("--only", default=None, help="comma-separated subset, for debugging")
     p.add_argument(
         "--data-dir", default=str(ROOT / "data" / "ucr"),
@@ -88,7 +93,25 @@ def main() -> int:
         if not entries:
             raise SystemExit(f"--only matched nothing in {args.datasets}")
 
-    out_path = Path(args.out)
+    out_path = (
+        Path(args.out) if args.out
+        else ROOT / "results" / "rocketpfn" / f"resample_{args.resample:02d}.csv"
+    )
+    # Resume rather than redo: a task that hits its walltime keeps every dataset
+    # it finished, and resubmitting picks up where it stopped. Matters more than
+    # usual here - the queue wait, not the compute, is the scarce resource.
+    done: set[str] = set()
+    if out_path.exists():
+        import csv as _csv
+
+        with out_path.open(newline="") as f:
+            done = {r["dataset"] for r in _csv.DictReader(f)}
+        if done:
+            print(f"[resume] {len(done)} datasets already in {out_path.name}", flush=True)
+    entries = [e for e in entries if e["name"] not in done]
+    if not entries:
+        print("[done] nothing left to run")
+        return 0
     gpu, host = gpu_name(), socket.gethostname()
     print(f"[run] {len(entries)} datasets  resample={args.resample}  "
           f"G={args.groups}x{args.kernels}  device={args.device}  gpu={gpu}", flush=True)
