@@ -31,11 +31,13 @@ def load_ours(path: Path, datasets: list[str], n_resamples: int) -> pd.DataFrame
         df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
     else:
         df = pd.read_csv(path)
-    df = df[df.dataset.isin(datasets) & (df.resample < n_resamples)]
+    # Bracket access, not attribute: df.resample resolves to DataFrame.resample,
+    # the time-series method, and comparing it to an int fails obscurely.
+    df = df[df["dataset"].isin(datasets) & (df["resample"] < n_resamples)]
     # Guard against a half-finished sweep being averaged as if complete: a
     # dataset with 3 of 30 resamples would otherwise silently get a noisier
     # mean than its neighbours and still be ranked against them.
-    counts = df.groupby("dataset").resample.nunique()
+    counts = df.groupby("dataset")["resample"].nunique()
     incomplete = counts[counts < n_resamples]
     if len(incomplete):
         print(f"[warn] {len(incomplete)} datasets have < {n_resamples} resamples:")
@@ -61,7 +63,7 @@ def main() -> int:
     comparators = cfg["classifiers"]
 
     ours = load_ours(Path(args.results), datasets, args.resamples)
-    mine = ours.groupby("dataset").accuracy.agg(["mean", "std", "count"])
+    mine = ours.groupby("dataset")["accuracy"].agg(["mean", "std", "count"])
 
     published, names = get_estimator_results_as_array(
         estimators=comparators, datasets=datasets,
@@ -124,10 +126,13 @@ def main() -> int:
         add(f"| {d} | {types[d]} | {cells} | {int(mine.loc[d, 'count'])} |")
 
     add("\n## Cost\n")
-    add(f"- median total per dataset per resample: {ours.total_time.median():.1f}s")
-    add(f"- median Rocket feature time: {ours.feature_time.median():.1f}s")
-    add(f"- median TabPFN time: {ours.tabpfn_time.median():.1f}s")
-    add(f"- total GPU time measured: {ours.total_time.sum() / 3600:.2f}h")
+    t_total, t_feat, t_pfn = (
+        ours["total_time"], ours["feature_time"], ours["tabpfn_time"]
+    )
+    add(f"- median total per dataset per resample: {t_total.median():.1f}s")
+    add(f"- median Rocket feature time: {t_feat.median():.1f}s")
+    add(f"- median TabPFN time: {t_pfn.median():.1f}s")
+    add(f"- total GPU time measured: {t_total.sum() / 3600:.2f}h")
 
     try:
         from aeon.visualisation import plot_critical_difference
