@@ -1,0 +1,176 @@
+{
+  "seed": 42,
+  "n": 20,
+  "pool_size": 92,
+  "max_classes": 10,
+  "classifiers": [
+    "HC2",
+    "InceptionTime",
+    "ROCKET",
+    "DrCIF",
+    "TS-CHIEF"
+  ],
+  "rule": "aeon univariate_equal_length (112) filtered to UCR Class<=10 (92), stratified by UCR problem type with largest-remainder allocation, sampled with numpy default_rng(seed)",
+  "datasets": [
+    {
+      "name": "ACSF1",
+      "type": "Device",
+      "n_classes": 10,
+      "length": 1460,
+      "n_train": 100,
+      "n_test": 100
+    },
+    {
+      "name": "BeetleFly",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 512,
+      "n_train": 20,
+      "n_test": 20
+    },
+    {
+      "name": "DistalPhalanxOutlineAgeGroup",
+      "type": "Image",
+      "n_classes": 3,
+      "length": 80,
+      "n_train": 400,
+      "n_test": 139
+    },
+    {
+      "name": "ECG5000",
+      "type": "ECG",
+      "n_classes": 5,
+      "length": 140,
+      "n_train": 500,
+      "n_test": 4500
+    },
+    {
+      "name": "Fish",
+      "type": "Image",
+      "n_classes": 7,
+      "length": 463,
+      "n_train": 175,
+      "n_test": 175
+    },
+    {
+      "name": "FreezerRegularTrain",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 301,
+      "n_train": 150,
+      "n_test": 2850
+    },
+    {
+      "name": "FreezerSmallTrain",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 301,
+      "n_train": 28,
+      "n_test": 2850
+    },
+    {
+      "name": "Ham",
+      "type": "Spectro",
+      "n_classes": 2,
+      "length": 431,
+      "n_train": 109,
+      "n_test": 105
+    },
+    {
+      "name": "ItalyPowerDemand",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 24,
+      "n_train": 67,
+      "n_test": 1029
+    },
+    {
+      "name": "MixedShapesSmallTrain",
+      "type": "Image",
+      "n_classes": 5,
+      "length": 1024,
+      "n_train": 100,
+      "n_test": 2425
+    },
+    {
+      "name": "PhalangesOutlinesCorrect",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 80,
+      "n_train": 1800,
+      "n_test": 858
+    },
+    {
+      "name": "Plane",
+      "type": "Sensor",
+      "n_classes": 7,
+      "length": 144,
+      "n_train": 105,
+      "n_test": 105
+    },
+    {
+      "name": "Rock",
+      "type": "Spectrum",
+      "n_classes": 4,
+      "length": 2844,
+      "n_train": 20,
+      "n_test": 50
+    },
+    {
+      "name": "ScreenType",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "ShapeletSim",
+      "type": "Simulated",
+      "n_classes": 2,
+      "length": 500,
+      "n_train": 20,
+      "n_test": 180
+    },
+    {
+      "name": "SmoothSubspace",
+      "type": "Simulated",
+      "n_classes": 3,
+      "length": 15,
+      "n_train": 150,
+      "n_test": 150
+    },
+    {
+      "name": "UWaveGestureLibraryX",
+      "type": "Motion",
+      "n_classes": 8,
+      "length": 315,
+      "n_train": 896,
+      "n_test": 3582
+    },
+    {
+      "name": "UWaveGestureLibraryZ",
+      "type": "Motion",
+      "n_classes": 8,
+      "length": 315,
+      "n_train": 896,
+      "n_test": 3582
+    },
+    {
+      "name": "Wine",
+      "type": "Spectro",
+      "n_classes": 2,
+      "length": 234,
+      "n_train": 57,
+      "n_test": 54
+    },
+    {
+      "name": "Worms",
+      "type": "Motion",
+      "n_classes": 5,
+      "length": 900,
+      "n_train": 181,
+      "n_test": 77
+    }
+  ]
+}
