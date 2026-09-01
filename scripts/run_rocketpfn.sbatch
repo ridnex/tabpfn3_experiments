@@ -2,6 +2,10 @@
 #SBATCH --job-name=rocketpfn
 # No --partition: Ibex forbids naming gpu4/gpu24 directly and routes GPU jobs
 # from --gres + --time.
+# a100 (sm_80) is not a preference, it is a requirement: torch 2.11.0+cu128
+# ships no sm_70 kernels, so a V100 fails immediately with
+#   CUDA error: no kernel image is available for execution on the device
+# Measured 2026-09-01 by racing an identical v100 array against this one.
 #SBATCH --gres=gpu:a100:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
