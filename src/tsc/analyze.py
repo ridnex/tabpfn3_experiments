@@ -56,7 +56,7 @@ def main() -> int:
     args = p.parse_args()
 
     from aeon.benchmarking.results_loaders import get_estimator_results_as_array
-    from aeon.benchmarking.stats import wilcoxon_test
+    from scipy.stats import wilcoxon
 
     cfg = json.loads(Path(args.config).read_text())
     datasets = [d["name"] for d in cfg["datasets"]]
@@ -104,13 +104,17 @@ def main() -> int:
     add("\n## RocketPFN vs HC2\n")
     if "HC2" in table:
         diff = table["RocketPFN"] - table["HC2"]
-        w = wilcoxon_test(table[["RocketPFN", "HC2"]].to_numpy(),
-                          ["RocketPFN", "HC2"], lower_better=False)
+        # scipy, not aeon.benchmarking.stats.wilcoxon_test: aeon returns a
+        # ONE-SIDED p per ordered pair, so its 0.96 reads as "not significant"
+        # when it actually means HC2 > RocketPFN at one-sided p = 0.04. The
+        # paper's test - and the honest one here - is two-sided.
+        stat, pval = wilcoxon(table["RocketPFN"], table["HC2"])
         add(f"- mean accuracy: RocketPFN {table['RocketPFN'].mean():.4f} "
             f"vs HC2 {table['HC2'].mean():.4f}")
         add(f"- RocketPFN wins on {int((diff > 0).sum())}, loses {int((diff < 0).sum())}, "
             f"ties {int((diff == 0).sum())}")
-        add(f"- Wilcoxon signed-rank p = {float(np.asarray(w)[0, 1]):.4f}")
+        add(f"- Wilcoxon signed-rank (two-sided) p = {pval:.4f}"
+            + ("" if pval >= 0.05 else " - HC2 significantly better"))
 
     add("\n## Per-dataset accuracy\n")
     cols = ["RocketPFN"] + comparators
@@ -133,6 +137,17 @@ def main() -> int:
     add(f"- median Rocket feature time: {t_feat.median():.1f}s")
     add(f"- median TabPFN time: {t_pfn.median():.1f}s")
     add(f"- total GPU time measured: {t_total.sum() / 3600:.2f}h")
+
+    add("\n## Deviations from the paper\n")
+    add("- **TabPFN v3** (`tabpfn` 8.1.0), not the paper's v2.5.")
+    add("- **20 datasets**, not 92 — a stratified sample fixed in `configs/ucr20.json` "
+        "before any result existed.")
+    add("- v3 shows each ensemble member only ~200 features and auto-scales "
+        "`n_estimators` 8 -> 10 to cover Rocket's 2000, so one group is ~10 forward "
+        "passes rather than one.")
+    add("- Installing `aeon` moved the shared env: pandas 3.0.5 -> 2.3.3, "
+        "numpy 2.4.6 -> 2.3.5, scikit-learn 1.9.0 -> 1.8.0.")
+    add("- Baselines are published numbers, never rerun, so only our column is new.")
 
     try:
         from aeon.visualisation import plot_critical_difference
