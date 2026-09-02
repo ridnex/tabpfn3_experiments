@@ -124,54 +124,81 @@ def main() -> int:
     warm.predict(Xw[:4])
     print(f"[warmup] {time.perf_counter() - t0:.1f}s", flush=True)
 
+    failures = 0
     for e in entries:
         name = e["name"]
-        Xtr, ytr = load_classification(name, split="train", extract_path=args.data_dir)
-        Xte, yte = load_classification(name, split="test", extract_path=args.data_dir)
-        if args.resample > 0:
-            Xtr, ytr, Xte, yte = stratified_resample_data(
-                Xtr, ytr, Xte, yte, random_state=args.resample
-            )
+        try:
+            run_one(e, args, n_cpus, gpu, host, out_path, torch, tabpfn, aeon,
+                    load_classification, stratified_resample_data, RocketPFNClassifier)
+        except Exception as exc:
+            # The pool is ordered cheapest-first, so the datasets that can
+            # plausibly fail (an 8926-series context is 5x anything measured)
+            # are last. One of them dying must cost only itself, not the 90
+            # results already on disk and not the allocation - which is the
+            # scarce thing here. Record the failure as a row so it shows up in
+            # analysis as missing-with-a-reason rather than silently absent.
+            failures += 1
+            print(f"  {name:28s} FAILED: {type(exc).__name__}: {exc}", flush=True)
+            append_rows(out_path, [{
+                **{k: "" for k in FIELDS},
+                "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "dataset": name, "ucr_type": e["type"], "resample": args.resample,
+                "gpu_name": gpu, "host": host,
+                "notes": f"{args.tag} FAILED {type(exc).__name__}: {exc}"[:300],
+            }], FIELDS)
+            if args.device == "cuda":
+                # An OOM leaves the caching allocator holding the block. Release
+                # it or the next dataset inherits the failure.
+                torch.cuda.empty_cache()
 
-        clf = RocketPFNClassifier(
-            n_groups=args.groups, n_kernels=args.kernels,
-            device=args.device, random_state=args.resample, n_jobs=n_cpus,
-        )
-        t0 = time.perf_counter()
-        clf.fit(Xtr, ytr)
-        y_hat = clf.predict(Xte)
-        total = time.perf_counter() - t0
-
-        acc = accuracy_score(yte, y_hat)
-        row = {
-            "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "dataset": name, "ucr_type": e["type"], "resample": args.resample,
-            "n_train": len(Xtr), "n_test": len(Xte),
-            "series_length": Xtr.shape[-1], "n_channels": Xtr.shape[1],
-            "n_classes": len(np.unique(ytr)),
-            "accuracy": float(acc),
-            "balanced_accuracy": float(balanced_accuracy_score(yte, y_hat)),
-            "n_groups": args.groups, "n_kernels": args.kernels,
-            # One number per group under v3's auto-scaling; joined rather than
-            # averaged so an outlier group stays visible.
-            "tabpfn_n_estimators": "|".join(str(x) for x in clf.n_estimators_),
-            "feature_time": round(clf.timings_["feature_time"], 3),
-            "tabpfn_time": round(clf.timings_["tabpfn_time"], 3),
-            "total_time": round(total, 3),
-            "seed": args.resample, "device": args.device, "n_cpus": n_cpus,
-            "gpu_name": gpu, "host": host, "torch_version": torch.__version__,
-            "tabpfn_version": tabpfn.__version__, "aeon_version": aeon.__version__,
-            "notes": args.tag,
-        }
-        # Flushed per dataset: a job that hits its Slurm limit keeps everything
-        # it finished instead of losing the lot.
-        append_rows(out_path, [row], FIELDS)
-        print(f"  {name:28s} acc={acc:.4f}  feat={row['feature_time']:7.1f}s  "
-              f"pfn={row['tabpfn_time']:7.1f}s  total={total:7.1f}s", flush=True)
-
-    print(f"[done] -> {out_path}", flush=True)
+    print(f"[done] -> {out_path}"
+          + (f"  ({failures} failed)" if failures else ""), flush=True)
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+def run_one(e, args, n_cpus, gpu, host, out_path, torch, tabpfn, aeon,
+            load_classification, stratified_resample_data, RocketPFNClassifier):
+    """One dataset, one resample. Raising here loses this dataset and no more."""
+    name = e["name"]
+    Xtr, ytr = load_classification(name, split="train", extract_path=args.data_dir)
+    Xte, yte = load_classification(name, split="test", extract_path=args.data_dir)
+    if args.resample > 0:
+        Xtr, ytr, Xte, yte = stratified_resample_data(
+            Xtr, ytr, Xte, yte, random_state=args.resample
+        )
+
+    clf = RocketPFNClassifier(
+        n_groups=args.groups, n_kernels=args.kernels,
+        device=args.device, random_state=args.resample, n_jobs=n_cpus,
+    )
+    t0 = time.perf_counter()
+    clf.fit(Xtr, ytr)
+    y_hat = clf.predict(Xte)
+    total = time.perf_counter() - t0
+
+    acc = accuracy_score(yte, y_hat)
+    row = {
+        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "dataset": name, "ucr_type": e["type"], "resample": args.resample,
+        "n_train": len(Xtr), "n_test": len(Xte),
+        "series_length": Xtr.shape[-1], "n_channels": Xtr.shape[1],
+        "n_classes": len(np.unique(ytr)),
+        "accuracy": float(acc),
+        "balanced_accuracy": float(balanced_accuracy_score(yte, y_hat)),
+        "n_groups": args.groups, "n_kernels": args.kernels,
+        # One number per group under v3's auto-scaling; joined rather than
+        # averaged so an outlier group stays visible.
+        "tabpfn_n_estimators": "|".join(str(x) for x in clf.n_estimators_),
+        "feature_time": round(clf.timings_["feature_time"], 3),
+        "tabpfn_time": round(clf.timings_["tabpfn_time"], 3),
+        "total_time": round(total, 3),
+        "seed": args.resample, "device": args.device, "n_cpus": n_cpus,
+        "gpu_name": gpu, "host": host, "torch_version": torch.__version__,
+        "tabpfn_version": tabpfn.__version__, "aeon_version": aeon.__version__,
+        "notes": args.tag,
+    }
+    # Flushed per dataset: a job that hits its Slurm limit keeps everything
+    # it finished instead of losing the lot.
+    append_rows(out_path, [row], FIELDS)
+    print(f"  {name:28s} acc={acc:.4f}  feat={row['feature_time']:7.1f}s  "
+          f"pfn={row['tabpfn_time']:7.1f}s  total={total:7.1f}s", flush=True)

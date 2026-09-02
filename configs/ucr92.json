@@ -1,0 +1,752 @@
+{
+  "seed": 42,
+  "n": 92,
+  "pool_size": 92,
+  "max_classes": 10,
+  "classifiers": [
+    "HC2",
+    "InceptionTime",
+    "ROCKET",
+    "DrCIF",
+    "TS-CHIEF"
+  ],
+  "rule": "aeon univariate_equal_length (112) filtered to UCR Class<=10 (92), all of them, ordered by (train+test)*length ascending",
+  "datasets": [
+    {
+      "name": "SmoothSubspace",
+      "type": "Simulated",
+      "n_classes": 3,
+      "length": 15,
+      "n_train": 150,
+      "n_test": 150
+    },
+    {
+      "name": "Chinatown",
+      "type": "Traffic",
+      "n_classes": 2,
+      "length": 24,
+      "n_train": 20,
+      "n_test": 343
+    },
+    {
+      "name": "Coffee",
+      "type": "Spectro",
+      "n_classes": 2,
+      "length": 286,
+      "n_train": 28,
+      "n_test": 28
+    },
+    {
+      "name": "ECG200",
+      "type": "ECG",
+      "n_classes": 2,
+      "length": 96,
+      "n_train": 100,
+      "n_test": 100
+    },
+    {
+      "name": "BeetleFly",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 512,
+      "n_train": 20,
+      "n_test": 20
+    },
+    {
+      "name": "BirdChicken",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 512,
+      "n_train": 20,
+      "n_test": 20
+    },
+    {
+      "name": "BME",
+      "type": "Simulated",
+      "n_classes": 3,
+      "length": 128,
+      "n_train": 30,
+      "n_test": 150
+    },
+    {
+      "name": "Wine",
+      "type": "Spectro",
+      "n_classes": 2,
+      "length": 234,
+      "n_train": 57,
+      "n_test": 54
+    },
+    {
+      "name": "ItalyPowerDemand",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 24,
+      "n_train": 67,
+      "n_test": 1029
+    },
+    {
+      "name": "UMD",
+      "type": "Simulated",
+      "n_classes": 3,
+      "length": 150,
+      "n_train": 36,
+      "n_test": 144
+    },
+    {
+      "name": "Beef",
+      "type": "Spectro",
+      "n_classes": 5,
+      "length": 470,
+      "n_train": 30,
+      "n_test": 30
+    },
+    {
+      "name": "GunPoint",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 150,
+      "n_train": 50,
+      "n_test": 150
+    },
+    {
+      "name": "Plane",
+      "type": "Sensor",
+      "n_classes": 7,
+      "length": 144,
+      "n_train": 105,
+      "n_test": 105
+    },
+    {
+      "name": "OliveOil",
+      "type": "Spectro",
+      "n_classes": 4,
+      "length": 570,
+      "n_train": 30,
+      "n_test": 30
+    },
+    {
+      "name": "SyntheticControl",
+      "type": "Simulated",
+      "n_classes": 6,
+      "length": 60,
+      "n_train": 300,
+      "n_test": 300
+    },
+    {
+      "name": "FaceFour",
+      "type": "Image",
+      "n_classes": 4,
+      "length": 350,
+      "n_train": 24,
+      "n_test": 88
+    },
+    {
+      "name": "DistalPhalanxOutlineAgeGroup",
+      "type": "Image",
+      "n_classes": 3,
+      "length": 80,
+      "n_train": 400,
+      "n_test": 139
+    },
+    {
+      "name": "DistalPhalanxTW",
+      "type": "Image",
+      "n_classes": 6,
+      "length": 80,
+      "n_train": 400,
+      "n_test": 139
+    },
+    {
+      "name": "SonyAIBORobotSurface1",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 70,
+      "n_train": 20,
+      "n_test": 601
+    },
+    {
+      "name": "MiddlePhalanxTW",
+      "type": "Image",
+      "n_classes": 6,
+      "length": 80,
+      "n_train": 399,
+      "n_test": 154
+    },
+    {
+      "name": "MiddlePhalanxOutlineAgeGroup",
+      "type": "Image",
+      "n_classes": 3,
+      "length": 80,
+      "n_train": 400,
+      "n_test": 154
+    },
+    {
+      "name": "Lightning7",
+      "type": "Sensor",
+      "n_classes": 7,
+      "length": 319,
+      "n_train": 70,
+      "n_test": 73
+    },
+    {
+      "name": "ProximalPhalanxOutlineAgeGroup",
+      "type": "Image",
+      "n_classes": 3,
+      "length": 80,
+      "n_train": 400,
+      "n_test": 205
+    },
+    {
+      "name": "ProximalPhalanxTW",
+      "type": "Image",
+      "n_classes": 6,
+      "length": 80,
+      "n_train": 400,
+      "n_test": 205
+    },
+    {
+      "name": "PowerCons",
+      "type": "Power",
+      "n_classes": 2,
+      "length": 144,
+      "n_train": 180,
+      "n_test": 180
+    },
+    {
+      "name": "ArrowHead",
+      "type": "Image",
+      "n_classes": 3,
+      "length": 251,
+      "n_train": 36,
+      "n_test": 175
+    },
+    {
+      "name": "Meat",
+      "type": "Spectro",
+      "n_classes": 3,
+      "length": 448,
+      "n_train": 60,
+      "n_test": 60
+    },
+    {
+      "name": "Trace",
+      "type": "Sensor",
+      "n_classes": 4,
+      "length": 275,
+      "n_train": 100,
+      "n_test": 100
+    },
+    {
+      "name": "ToeSegmentation2",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 343,
+      "n_train": 36,
+      "n_test": 130
+    },
+    {
+      "name": "SonyAIBORobotSurface2",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 65,
+      "n_train": 27,
+      "n_test": 953
+    },
+    {
+      "name": "Herring",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 512,
+      "n_train": 64,
+      "n_test": 64
+    },
+    {
+      "name": "GunPointAgeSpan",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 150,
+      "n_train": 135,
+      "n_test": 316
+    },
+    {
+      "name": "GunPointMaleVersusFemale",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 150,
+      "n_train": 135,
+      "n_test": 316
+    },
+    {
+      "name": "GunPointOldVersusYoung",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 150,
+      "n_train": 136,
+      "n_test": 315
+    },
+    {
+      "name": "Car",
+      "type": "Sensor",
+      "n_classes": 4,
+      "length": 577,
+      "n_train": 60,
+      "n_test": 60
+    },
+    {
+      "name": "DistalPhalanxOutlineCorrect",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 80,
+      "n_train": 600,
+      "n_test": 276
+    },
+    {
+      "name": "MiddlePhalanxOutlineCorrect",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 80,
+      "n_train": 600,
+      "n_test": 291
+    },
+    {
+      "name": "ProximalPhalanxOutlineCorrect",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 80,
+      "n_train": 600,
+      "n_test": 291
+    },
+    {
+      "name": "ToeSegmentation1",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 277,
+      "n_train": 40,
+      "n_test": 228
+    },
+    {
+      "name": "Lightning2",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 637,
+      "n_train": 60,
+      "n_test": 61
+    },
+    {
+      "name": "Ham",
+      "type": "Spectro",
+      "n_classes": 2,
+      "length": 431,
+      "n_train": 109,
+      "n_test": 105
+    },
+    {
+      "name": "TwoLeadECG",
+      "type": "ECG",
+      "n_classes": 2,
+      "length": 82,
+      "n_train": 23,
+      "n_test": 1139
+    },
+    {
+      "name": "ShapeletSim",
+      "type": "Simulated",
+      "n_classes": 2,
+      "length": 500,
+      "n_train": 20,
+      "n_test": 180
+    },
+    {
+      "name": "MoteStrain",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 84,
+      "n_train": 20,
+      "n_test": 1252
+    },
+    {
+      "name": "DiatomSizeReduction",
+      "type": "Image",
+      "n_classes": 4,
+      "length": 345,
+      "n_train": 16,
+      "n_test": 306
+    },
+    {
+      "name": "MedicalImages",
+      "type": "Image",
+      "n_classes": 10,
+      "length": 99,
+      "n_train": 381,
+      "n_test": 760
+    },
+    {
+      "name": "CBF",
+      "type": "Simulated",
+      "n_classes": 3,
+      "length": 128,
+      "n_train": 30,
+      "n_test": 900
+    },
+    {
+      "name": "ECGFiveDays",
+      "type": "ECG",
+      "n_classes": 2,
+      "length": 136,
+      "n_train": 23,
+      "n_test": 861
+    },
+    {
+      "name": "InsectEPGSmallTrain",
+      "type": "EPG",
+      "n_classes": 3,
+      "length": 601,
+      "n_train": 17,
+      "n_test": 249
+    },
+    {
+      "name": "Fish",
+      "type": "Image",
+      "n_classes": 7,
+      "length": 463,
+      "n_train": 175,
+      "n_test": 175
+    },
+    {
+      "name": "InsectEPGRegularTrain",
+      "type": "EPG",
+      "n_classes": 3,
+      "length": 601,
+      "n_train": 62,
+      "n_test": 249
+    },
+    {
+      "name": "OSULeaf",
+      "type": "Image",
+      "n_classes": 6,
+      "length": 427,
+      "n_train": 200,
+      "n_test": 242
+    },
+    {
+      "name": "Rock",
+      "type": "Spectrum",
+      "n_classes": 4,
+      "length": 2844,
+      "n_train": 20,
+      "n_test": 50
+    },
+    {
+      "name": "PhalangesOutlinesCorrect",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 80,
+      "n_train": 1800,
+      "n_test": 858
+    },
+    {
+      "name": "Strawberry",
+      "type": "Spectro",
+      "n_classes": 2,
+      "length": 235,
+      "n_train": 613,
+      "n_test": 370
+    },
+    {
+      "name": "Worms",
+      "type": "Motion",
+      "n_classes": 5,
+      "length": 900,
+      "n_train": 181,
+      "n_test": 77
+    },
+    {
+      "name": "WormsTwoClass",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 900,
+      "n_train": 181,
+      "n_test": 77
+    },
+    {
+      "name": "Earthquakes",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 512,
+      "n_train": 322,
+      "n_test": 139
+    },
+    {
+      "name": "ACSF1",
+      "type": "Device",
+      "n_classes": 10,
+      "length": 1460,
+      "n_train": 100,
+      "n_test": 100
+    },
+    {
+      "name": "HouseTwenty",
+      "type": "Device",
+      "n_classes": 2,
+      "length": 2000,
+      "n_train": 40,
+      "n_test": 119
+    },
+    {
+      "name": "Computers",
+      "type": "Device",
+      "n_classes": 2,
+      "length": 720,
+      "n_train": 250,
+      "n_test": 250
+    },
+    {
+      "name": "Symbols",
+      "type": "Image",
+      "n_classes": 6,
+      "length": 398,
+      "n_train": 25,
+      "n_test": 995
+    },
+    {
+      "name": "Haptics",
+      "type": "Motion",
+      "n_classes": 5,
+      "length": 1092,
+      "n_train": 155,
+      "n_test": 308
+    },
+    {
+      "name": "LargeKitchenAppliances",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "RefrigerationDevices",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "ScreenType",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "SmallKitchenAppliances",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "TwoPatterns",
+      "type": "Simulated",
+      "n_classes": 4,
+      "length": 128,
+      "n_train": 1000,
+      "n_test": 4000
+    },
+    {
+      "name": "ECG5000",
+      "type": "ECG",
+      "n_classes": 5,
+      "length": 140,
+      "n_train": 500,
+      "n_test": 4500
+    },
+    {
+      "name": "ChlorineConcentration",
+      "type": "Sensor",
+      "n_classes": 3,
+      "length": 166,
+      "n_train": 467,
+      "n_test": 3840
+    },
+    {
+      "name": "FreezerSmallTrain",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 301,
+      "n_train": 28,
+      "n_test": 2850
+    },
+    {
+      "name": "FreezerRegularTrain",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 301,
+      "n_train": 150,
+      "n_test": 2850
+    },
+    {
+      "name": "Wafer",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 152,
+      "n_train": 1000,
+      "n_test": 6164
+    },
+    {
+      "name": "InlineSkate",
+      "type": "Motion",
+      "n_classes": 7,
+      "length": 1882,
+      "n_train": 100,
+      "n_test": 550
+    },
+    {
+      "name": "SemgHandGenderCh2",
+      "type": "Spectrum",
+      "n_classes": 2,
+      "length": 1500,
+      "n_train": 300,
+      "n_test": 600
+    },
+    {
+      "name": "SemgHandMovementCh2",
+      "type": "Spectrum",
+      "n_classes": 6,
+      "length": 1500,
+      "n_train": 450,
+      "n_test": 450
+    },
+    {
+      "name": "SemgHandSubjectCh2",
+      "type": "Spectrum",
+      "n_classes": 5,
+      "length": 1500,
+      "n_train": 450,
+      "n_test": 450
+    },
+    {
+      "name": "Yoga",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 426,
+      "n_train": 300,
+      "n_test": 3000
+    },
+    {
+      "name": "UWaveGestureLibraryX",
+      "type": "Motion",
+      "n_classes": 8,
+      "length": 315,
+      "n_train": 896,
+      "n_test": 3582
+    },
+    {
+      "name": "UWaveGestureLibraryY",
+      "type": "Motion",
+      "n_classes": 8,
+      "length": 315,
+      "n_train": 896,
+      "n_test": 3582
+    },
+    {
+      "name": "UWaveGestureLibraryZ",
+      "type": "Motion",
+      "n_classes": 8,
+      "length": 315,
+      "n_train": 896,
+      "n_test": 3582
+    },
+    {
+      "name": "EthanolLevel",
+      "type": "Spectro",
+      "n_classes": 4,
+      "length": 1751,
+      "n_train": 504,
+      "n_test": 500
+    },
+    {
+      "name": "CinCECGTorso",
+      "type": "Sensor",
+      "n_classes": 4,
+      "length": 1639,
+      "n_train": 40,
+      "n_test": 1380
+    },
+    {
+      "name": "Mallat",
+      "type": "Simulated",
+      "n_classes": 8,
+      "length": 1024,
+      "n_train": 55,
+      "n_test": 2345
+    },
+    {
+      "name": "MixedShapesSmallTrain",
+      "type": "Image",
+      "n_classes": 5,
+      "length": 1024,
+      "n_train": 100,
+      "n_test": 2425
+    },
+    {
+      "name": "MixedShapesRegularTrain",
+      "type": "Image",
+      "n_classes": 5,
+      "length": 1024,
+      "n_train": 500,
+      "n_test": 2425
+    },
+    {
+      "name": "HandOutlines",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 2709,
+      "n_train": 1000,
+      "n_test": 370
+    },
+    {
+      "name": "UWaveGestureLibraryAll",
+      "type": "Motion",
+      "n_classes": 8,
+      "length": 945,
+      "n_train": 896,
+      "n_test": 3582
+    },
+    {
+      "name": "StarLightCurves",
+      "type": "Sensor",
+      "n_classes": 3,
+      "length": 1024,
+      "n_train": 1000,
+      "n_test": 8236
+    },
+    {
+      "name": "ElectricDevices",
+      "type": "Device",
+      "n_classes": 7,
+      "length": 96,
+      "n_train": 8926,
+      "n_test": 7711
+    },
+    {
+      "name": "FordB",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 500,
+      "n_train": 3636,
+      "n_test": 810
+    },
+    {
+      "name": "FordA",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 500,
+      "n_train": 3601,
+      "n_test": 1320
+    }
+  ]
+}

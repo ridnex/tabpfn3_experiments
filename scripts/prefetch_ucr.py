@@ -4,6 +4,7 @@ Zenodo returns intermittent 504s. A GPU job that hits one dies partway through
 a resample, having burned the allocation - so the download happens once here,
 on a login node, with retries, and the compute nodes only ever read from disk.
 """
+import argparse
 import json
 import shutil
 import sys
@@ -17,7 +18,11 @@ RETRIES = 5
 sys.path.insert(0, str(ROOT / "src"))
 from aeon.datasets import load_classification  # noqa: E402
 
-cfg = json.loads((ROOT / "configs" / "ucr20.json").read_text())
+ap = argparse.ArgumentParser()
+ap.add_argument("--config", default=str(ROOT / "configs" / "ucr20.json"))
+args = ap.parse_args()
+
+cfg = json.loads(Path(args.config).read_text())
 names = [d["name"] for d in cfg["datasets"]]
 DATA.mkdir(parents=True, exist_ok=True)
 

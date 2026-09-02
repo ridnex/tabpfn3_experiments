@@ -34,6 +34,17 @@ def load_ours(path: Path, datasets: list[str], n_resamples: int) -> pd.DataFrame
     # Bracket access, not attribute: df.resample resolves to DataFrame.resample,
     # the time-series method, and comparing it to an int fails obscurely.
     df = df[df["dataset"].isin(datasets) & (df["resample"] < n_resamples)]
+    # A dataset that failed (OOM on a large context, say) is written as a row
+    # with an empty accuracy and the reason in `notes`. Report those, then drop
+    # them: averaging over a NaN would quietly under-count resamples, and the
+    # completeness warning below is what should surface the gap.
+    df["accuracy"] = pd.to_numeric(df["accuracy"], errors="coerce")
+    bad = df[df["accuracy"].isna()]
+    if len(bad):
+        print(f"[warn] {len(bad)} failed runs excluded:")
+        for name, sub in bad.groupby("dataset"):
+            print(f"       {name:28s} {len(sub)}x  {sub['notes'].iloc[0]}")
+        df = df[df["accuracy"].notna()]
     # Guard against a half-finished sweep being averaged as if complete: a
     # dataset with 3 of 30 resamples would otherwise silently get a noisier
     # mean than its neighbours and still be ranked against them.
