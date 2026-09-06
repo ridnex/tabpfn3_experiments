@@ -202,3 +202,7 @@ def run_one(e, args, n_cpus, gpu, host, out_path, torch, tabpfn, aeon,
     append_rows(out_path, [row], FIELDS)
     print(f"  {name:28s} acc={acc:.4f}  feat={row['feature_time']:7.1f}s  "
           f"pfn={row['tabpfn_time']:7.1f}s  total={total:7.1f}s", flush=True)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

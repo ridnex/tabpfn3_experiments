@@ -32,6 +32,21 @@ END="${2:-29}"
 echo "=== node: $(hostname)  cpus: ${SLURM_CPUS_PER_TASK}  resamples ${START}..${END}"
 nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader
 
+# Liveness check before committing 48h to the loop. Job 51210098 burned a
+# whole allocation in 43 seconds because run.py had lost its
+# `if __name__ == "__main__"` block in a refactor: it imported, did nothing,
+# and exited 0, so every resample "completed" instantly. Syntax checks do not
+# catch that - only running it does. Two minutes here is cheap insurance
+# against another three-day queue wait.
+SMOKE="$(mktemp -d)/smoke.csv"
+"$PY" "$PROJ/src/tsc/run.py" --datasets "$PROJ/configs/ucr92.json" \
+    --resample 0 --device cuda --only Chinatown --out "$SMOKE" --tag smoke
+if [ ! -s "$SMOKE" ] || [ "$(wc -l < "$SMOKE")" -lt 2 ]; then
+    echo "FATAL: smoke run produced no rows - aborting before wasting the allocation"
+    exit 1
+fi
+echo "=== smoke ok, starting sweep"
+
 for R in $(seq "$START" "$END"); do
     echo ""
     echo "===== resample $R  ($(date -u +%H:%M:%S) UTC) ====="
