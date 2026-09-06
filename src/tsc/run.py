@@ -60,6 +60,9 @@ def main() -> int:
              "interleave mid-row and corrupt it. analyze.py globs them back.",
     )
     p.add_argument("--only", default=None, help="comma-separated subset, for debugging")
+    p.add_argument("--shard", type=int, default=0, help="0-based shard index")
+    p.add_argument("--nshards", type=int, default=1,
+                   help="split the dataset list across N concurrent jobs")
     p.add_argument(
         "--data-dir", default=str(ROOT / "data" / "ucr"),
         help="local .ts cache, populated by scripts/prefetch_ucr.py. Compute nodes "
@@ -93,21 +96,37 @@ def main() -> int:
         if not entries:
             raise SystemExit(f"--only matched nothing in {args.datasets}")
 
+    # Deal the datasets round-robin, not in contiguous blocks. The config is
+    # ordered cheapest-first, so contiguous blocks would hand shard 3 every
+    # expensive dataset and shard 0 every trivial one; dealing gives each shard
+    # a similar total cost and they finish together.
+    if args.nshards > 1:
+        entries = entries[args.shard::args.nshards]
+
+    # Each shard writes its OWN file. Four jobs appending to one CSV interleave
+    # mid-row and corrupt it. analyze.py globs resample_*.csv, so the suffixed
+    # names are picked up automatically.
+    suffix = f"_s{args.shard}" if args.nshards > 1 else ""
     out_path = (
         Path(args.out) if args.out
-        else ROOT / "results" / "rocketpfn" / f"resample_{args.resample:02d}.csv"
+        else ROOT / "results" / "rocketpfn" / f"resample_{args.resample:02d}{suffix}.csv"
     )
     # Resume rather than redo: a task that hits its walltime keeps every dataset
     # it finished, and resubmitting picks up where it stopped. Matters more than
     # usual here - the queue wait, not the compute, is the scarce resource.
-    done: set[str] = set()
-    if out_path.exists():
-        import csv as _csv
+    # Scan EVERY file for this resample, not just our own: the 20-dataset sweep
+    # wrote resample_NN.csv, and a shard that only checked its own file would
+    # recompute whichever of those 20 it was dealt - 600 wasted runs across the
+    # sweep, and duplicate rows in the analysis.
+    import csv as _csv
 
-        with out_path.open(newline="") as f:
-            done = {r["dataset"] for r in _csv.DictReader(f)}
-        if done:
-            print(f"[resume] {len(done)} datasets already in {out_path.name}", flush=True)
+    done: set[str] = set()
+    for f_done in sorted(out_path.parent.glob(f"resample_{args.resample:02d}*.csv")):
+        with f_done.open(newline="") as f:
+            done |= {r["dataset"] for r in _csv.DictReader(f)}
+    if done:
+        print(f"[resume] {len(done)} datasets already done for resample "
+              f"{args.resample}", flush=True)
     entries = [e for e in entries if e["name"] not in done]
     if not entries:
         print("[done] nothing left to run")
