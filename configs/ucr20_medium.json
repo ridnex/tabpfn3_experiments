@@ -1,0 +1,183 @@
+{
+  "n": 20,
+  "pool_size": 92,
+  "min_train": 120,
+  "top_n": 100,
+  "resamples": 10,
+  "classifiers": [
+    "HC2",
+    "InceptionTime",
+    "ROCKET",
+    "DrCIF",
+    "TS-CHIEF"
+  ],
+  "rule": "of the 92-dataset pool, keep n_train>=120 so PCA can always return 100 components (20 rows of margin), sort by (train+test)*length, take the middle 20. Fixed before any Stage 1 result exists.",
+  "arms": [
+    "random",
+    "mutual_info",
+    "mrmr",
+    "pca"
+  ],
+  "datasets": [
+    {
+      "name": "ProximalPhalanxOutlineCorrect",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 80,
+      "n_train": 600,
+      "n_test": 291
+    },
+    {
+      "name": "MedicalImages",
+      "type": "Image",
+      "n_classes": 10,
+      "length": 99,
+      "n_train": 381,
+      "n_test": 760
+    },
+    {
+      "name": "Fish",
+      "type": "Image",
+      "n_classes": 7,
+      "length": 463,
+      "n_train": 175,
+      "n_test": 175
+    },
+    {
+      "name": "OSULeaf",
+      "type": "Image",
+      "n_classes": 6,
+      "length": 427,
+      "n_train": 200,
+      "n_test": 242
+    },
+    {
+      "name": "PhalangesOutlinesCorrect",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 80,
+      "n_train": 1800,
+      "n_test": 858
+    },
+    {
+      "name": "Strawberry",
+      "type": "Spectro",
+      "n_classes": 2,
+      "length": 235,
+      "n_train": 613,
+      "n_test": 370
+    },
+    {
+      "name": "Worms",
+      "type": "Motion",
+      "n_classes": 5,
+      "length": 900,
+      "n_train": 181,
+      "n_test": 77
+    },
+    {
+      "name": "WormsTwoClass",
+      "type": "Motion",
+      "n_classes": 2,
+      "length": 900,
+      "n_train": 181,
+      "n_test": 77
+    },
+    {
+      "name": "Earthquakes",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 512,
+      "n_train": 322,
+      "n_test": 139
+    },
+    {
+      "name": "Computers",
+      "type": "Device",
+      "n_classes": 2,
+      "length": 720,
+      "n_train": 250,
+      "n_test": 250
+    },
+    {
+      "name": "Haptics",
+      "type": "Motion",
+      "n_classes": 5,
+      "length": 1092,
+      "n_train": 155,
+      "n_test": 308
+    },
+    {
+      "name": "LargeKitchenAppliances",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "RefrigerationDevices",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "ScreenType",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "SmallKitchenAppliances",
+      "type": "Device",
+      "n_classes": 3,
+      "length": 720,
+      "n_train": 375,
+      "n_test": 375
+    },
+    {
+      "name": "TwoPatterns",
+      "type": "Simulated",
+      "n_classes": 4,
+      "length": 128,
+      "n_train": 1000,
+      "n_test": 4000
+    },
+    {
+      "name": "ECG5000",
+      "type": "ECG",
+      "n_classes": 5,
+      "length": 140,
+      "n_train": 500,
+      "n_test": 4500
+    },
+    {
+      "name": "ChlorineConcentration",
+      "type": "Sensor",
+      "n_classes": 3,
+      "length": 166,
+      "n_train": 467,
+      "n_test": 3840
+    },
+    {
+      "name": "FreezerRegularTrain",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 301,
+      "n_train": 150,
+      "n_test": 2850
+    },
+    {
+      "name": "Wafer",
+      "type": "Sensor",
+      "n_classes": 2,
+      "length": 152,
+      "n_train": 1000,
+      "n_test": 6164
+    }
+  ]
+}
