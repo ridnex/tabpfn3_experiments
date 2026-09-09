@@ -1,0 +1,54 @@
+{
+  "n": 5,
+  "kernels": [
+    10,
+    50,
+    100
+  ],
+  "control_kernels": 1000,
+  "resamples": 5,
+  "rule": "the 5 datasets with n_train<100 on which RocketPFN loses most to HC2, measured on the completed 92x30 sweep. Selecting on our own outcome biases toward improvement (regression to the mean), so a win here is a hint to confirm on unselected datasets, not a result.",
+  "control": "k=1000 is already measured for these datasets at resamples 0-4 in results/rocketpfn/, so the comparison is paired on identical splits.",
+  "datasets": [
+    {
+      "name": "CinCECGTorso",
+      "type": "Sensor",
+      "n_classes": 4,
+      "length": 1639,
+      "n_train": 40,
+      "n_test": 1380
+    },
+    {
+      "name": "Rock",
+      "type": "Spectrum",
+      "n_classes": 4,
+      "length": 2844,
+      "n_train": 20,
+      "n_test": 50
+    },
+    {
+      "name": "InsectEPGSmallTrain",
+      "type": "EPG",
+      "n_classes": 3,
+      "length": 601,
+      "n_train": 17,
+      "n_test": 249
+    },
+    {
+      "name": "FaceFour",
+      "type": "Image",
+      "n_classes": 4,
+      "length": 350,
+      "n_train": 24,
+      "n_test": 88
+    },
+    {
+      "name": "BeetleFly",
+      "type": "Image",
+      "n_classes": 2,
+      "length": 512,
+      "n_train": 20,
+      "n_test": 20
+    }
+  ]
+}
