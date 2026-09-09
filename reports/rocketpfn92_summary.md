@@ -25,6 +25,53 @@ averaged. Baselines are published per-resample results, never rerun.
 The paper's central claim, that a training-free method is statistically
 indistinguishable from HIVE-COTE 2.0, **reproduces**.
 
+## Paper vs. this reproduction
+
+The paper's own numbers (Table 2, 92 datasets, 30 resamples) against ours:
+
+| method | paper | ours | diff |
+|---|---|---|---|
+| **RocketPFN** | **0.900** | **0.8954** | **−0.0046** |
+| HC2 | 0.900 | 0.9005 | +0.0005 |
+| TS-CHIEF | 0.884 | 0.8843 | +0.0003 |
+| DrCIF | 0.884 | 0.8841 | +0.0001 |
+| ROCKET | 0.882 | 0.8818 | −0.0002 |
+| InceptionTime | 0.880 | 0.8799 | −0.0001 |
+
+| vs HC2 | paper | ours |
+|---|---|---|
+| win / tie / loss | 44 / 3 / 45 | 37 / 5 / 50 |
+| Wilcoxon p | 0.504 | 0.141 |
+
+**Every baseline matches to within 0.0005.** That is the useful part: it confirms
+our pool really is the paper's 92, the 30-resample protocol lines up index for
+index, and nothing in the comparison machinery is off. All five agree because
+both papers read the same published results files.
+
+**Only RocketPFN differs — ours is 0.5 accuracy points low.** Since everything
+else matches, the gap is isolated to our implementation of the method itself, or
+to the model behind it. The paper used TabPFN v2.5; we used v3. We had assumed v3
+would help, since it is the stronger model; it did not.
+
+The consequence is visible in the head-to-head. The paper's RocketPFN splits with
+HC2 almost exactly evenly (44–45, p = 0.504). Ours tilts toward HC2 (37–50,
+p = 0.141). Both fail to reject, so the qualitative claim — statistically
+indistinguishable from HC2 — holds either way. But the paper's version sits level
+with HC2 and ours sits slightly below it, and half a point is not nothing.
+
+Candidate explanations, none yet tested:
+
+1. **TabPFN v3 vs v2.5.** The likeliest. v3's per-member feature budget changed
+   how the 2000 features of a group are covered (auto-scaling `n_estimators`
+   8→10), so "one group" is not the same computation in both versions.
+2. **Rocket normalisation of the input series.** The paper names no code
+   repository, so we inferred this from aeon's defaults.
+3. **Group seeding.** Our per-group seeds derive from `random_state`; the paper
+   does not specify its scheme.
+
+Testing (1) would mean re-running against TabPFN v2.5 — the single most direct
+way to close or explain the gap.
+
 ## The 20-dataset subset was misleading
 
 We ran a 20-dataset subset first. It understated the method:
