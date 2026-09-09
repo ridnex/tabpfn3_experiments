@@ -1,0 +1,6 @@
+timestamp,dataset,ucr_type,resample,n_train,n_test,series_length,n_channels,n_classes,accuracy,balanced_accuracy,n_groups,n_kernels,tabpfn_n_estimators,feature_time,tabpfn_time,total_time,seed,device,n_cpus,gpu_name,host,torch_version,tabpfn_version,aeon_version,notes
+2026-09-09T13:58:48+00:00,CinCECGTorso,Sensor,4,40,1380,1639,1,4,0.8217391304347826,0.8217161915436328,10,50,8|8|8|8|8|8|8|8|8|8,2.573,8.565,11.139,4,cuda,4,NVIDIA A100-SXM4-80GB,gpu203-23-r,2.11.0+cu128,8.1.0,1.5.0,kernel-probe k=50
+2026-09-09T13:58:57+00:00,Rock,Spectrum,4,20,50,2844,1,4,0.84,0.8611111111111112,10,50,8|8|8|8|8|8|8|8|8|8,0.25,8.33,8.581,4,cuda,4,NVIDIA A100-SXM4-80GB,gpu203-23-r,2.11.0+cu128,8.1.0,1.5.0,kernel-probe k=50
+2026-09-09T13:59:06+00:00,InsectEPGSmallTrain,EPG,4,17,249,601,1,3,0.9477911646586346,0.9540722402082142,10,50,8|8|8|8|8|8|8|8|8|8,0.199,8.273,8.473,4,cuda,4,NVIDIA A100-SXM4-80GB,gpu203-23-r,2.11.0+cu128,8.1.0,1.5.0,kernel-probe k=50
+2026-09-09T13:59:14+00:00,FaceFour,Image,4,24,88,350,1,4,0.9204545454545454,0.9291958041958042,10,50,8|8|8|8|8|8|8|8|8|8,0.069,8.303,8.374,4,cuda,4,NVIDIA A100-SXM4-80GB,gpu203-23-r,2.11.0+cu128,8.1.0,1.5.0,kernel-probe k=50
+2026-09-09T13:59:22+00:00,BeetleFly,Image,4,20,20,512,1,2,0.95,0.95,10,50,8|8|8|8|8|8|8|8|8|8,0.049,8.272,8.322,4,cuda,4,NVIDIA A100-SXM4-80GB,gpu203-23-r,2.11.0+cu128,8.1.0,1.5.0,kernel-probe k=50
