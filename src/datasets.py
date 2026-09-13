@@ -87,6 +87,12 @@ REGISTRY: dict[str, Dataset] = {
         "electricity", 151, "class", 45312,
         task="classification", encode_categoricals=True,
     ),
+    # --- feature-order probe (src/feature_order.py): 50-200 features each ---
+    "spambase": Dataset("spambase", 44, "class", 4601, task="classification"),
+    "mfeat_fourier": Dataset("mfeat_fourier", 14, "class", 2000, task="classification"),
+    # Two target columns in the file; latitude is the target, so longitude must
+    # leave X or it hands the model the answer's twin.
+    "music_origin": Dataset("music_origin", 44965, "latitude", 1059, drop=("longitude",)),
     # ~581k rung: NYC green taxi, Dec 2016. Two hazards, both handled above:
     #   LEAKAGE: `total_amount` = fare + extra + mta_tax + tolls + surcharge +
     #     tip_amount, i.e. it contains the target additively. Verified against the
