@@ -93,6 +93,12 @@ REGISTRY: dict[str, Dataset] = {
     # Two target columns in the file; latitude is the target, so longitude must
     # leave X or it hands the model the answer's twin.
     "music_origin": Dataset("music_origin", 44965, "latitude", 1059, drop=("longitude",)),
+    # Multi-target supply-chain forecasting (16 targets). LBL is the target; the
+    # other 15 are future prices of the same products, so they must leave X.
+    "scm20d": Dataset(
+        "scm20d", 41486, "LBL", 8966,
+        drop=tuple(f"MTLp{i}A" for i in range(2, 17)),
+    ),
     # ~581k rung: NYC green taxi, Dec 2016. Two hazards, both handled above:
     #   LEAKAGE: `total_amount` = fare + extra + mta_tax + tolls + surcharge +
     #     tip_amount, i.e. it contains the target additively. Verified against the

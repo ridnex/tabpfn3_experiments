@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import datasets as ds_mod  # noqa: E402
 from benchmark import RESULTS_DIR, gpu_name, score_regression  # noqa: E402
 
-DATASETS = ["spambase", "mfeat_fourier", "superconductivity", "music_origin"]
+DATASETS = ["spambase", "mfeat_fourier", "superconductivity", "scm20d"]
 SETTINGS = {"default": {}, "n_est1": {"n_estimators": 1}}
 TABPFN_SEED = 42
 SPLIT_SEED = 0
