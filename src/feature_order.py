@@ -78,28 +78,47 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--datasets", default=",".join(DATASETS))
     p.add_argument("--out", default=str(RESULTS_DIR / "feature_order.csv"))
+    p.add_argument("--settings", default=",".join(SETTINGS))
     args = p.parse_args()
+    settings = {s: SETTINGS[s] for s in args.settings.split(",")}
 
     gpu = gpu_name()
     rows = []
     for name in args.datasets.split(","):
         X, y, meta = ds_mod.load(name)
+        columns = list(X.columns)
         X = X.to_numpy(dtype="float64")
         y = y.to_numpy()
         task = meta.task
         clf = task == "classification"
-        X_tr, X_te, y_tr, y_te = train_test_split(
-            X, y, test_size=0.2, random_state=SPLIT_SEED, stratify=y if clf else None
-        )
+        split_seed = SPLIT_SEED
+        main_metric = "accuracy" if clf else "r2"
+        if meta.cv == "holdout":
+            # Forecast: rows are time-sorted by load(); train strictly before split_at.
+            n_tr = meta.holdout_n_train
+            X_tr, X_te, y_tr, y_te = X[:n_tr], X[n_tr:], y[:n_tr], y[n_tr:]
+            split_seed = -1
+            # R2 is negative on this split, so a % of it is meaningless; use RMSE.
+            main_metric = "rmse"
+        elif meta.cv == "shuffle":
+            # Same split as benchmark.py (index split, seed 42), so baselines match
+            # results/results_ke02_shuffle.csv.
+            split_seed = 42
+            tr, te = train_test_split(np.arange(len(X)), test_size=0.2, shuffle=True,
+                                      random_state=split_seed)
+            X_tr, X_te, y_tr, y_te = X[tr], X[te], y[tr], y[te]
+        else:
+            X_tr, X_te, y_tr, y_te = train_test_split(
+                X, y, test_size=0.2, random_state=SPLIT_SEED, stratify=y if clf else None
+            )
         n_feat = X.shape[1]
         perms = {s: permutation(s, n_feat) for s in PERM_SEEDS}
         shuffled = [tuple(perms[s]) for s in PERM_SEEDS[1:]]
         assert len(set(shuffled)) == len(shuffled), "permutations not distinct"
         assert tuple(range(n_feat)) not in shuffled, "a shuffle is the identity"
-        main_metric = "accuracy" if clf else "r2"
         print(f"\n=== {name}: {task}, train {X_tr.shape}, test {X_te.shape}", flush=True)
 
-        for setting, params in SETTINGS.items():
+        for setting, params in settings.items():
             base_out = base_score = None
             for s in PERM_SEEDS:
                 perm = perms[s]
@@ -110,7 +129,7 @@ def main() -> int:
                 row = {
                     "dataset": name, "task": task, "n_train": len(X_tr), "n_test": len(X_te),
                     "n_features": n_feat, "setting": setting, "perm_seed": s,
-                    "tabpfn_seed": TABPFN_SEED, "split_seed": SPLIT_SEED,
+                    "tabpfn_seed": TABPFN_SEED, "split_seed": split_seed,
                     "main_metric": main_metric, "score": metrics[main_metric],
                     "abs_diff": abs(metrics[main_metric] - base_score),
                     "rel_diff": abs(metrics[main_metric] - base_score) / abs(base_score),
@@ -124,7 +143,8 @@ def main() -> int:
                     row["max_abs_dpred"] = float(d.max())
                     row["mean_abs_dpred"] = float(d.mean())
                 row.update(fit_time=t_fit, predict_time=t_pred, gpu=gpu,
-                           perm_head=" ".join(map(str, perm[:10])))
+                           column_order=" | ".join(columns[i] for i in perm),
+                           perm_index=" ".join(map(str, perm)))
                 rows.append(row)
                 print(f"  {setting:8s} perm {s}: {main_metric}={row['score']:.5f} "
                       f"abs_diff={row['abs_diff']:.5f} fit={t_fit:.1f}s pred={t_pred:.1f}s",
