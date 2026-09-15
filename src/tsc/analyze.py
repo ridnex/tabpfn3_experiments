@@ -64,7 +64,10 @@ def main() -> int:
     p.add_argument("--resamples", type=int, default=30)
     p.add_argument("--report", default=str(ROOT / "reports" / "rocketpfn.md"))
     p.add_argument("--cd-plot", default=str(ROOT / "reports" / "rocketpfn_cd.png"))
+    p.add_argument("--label", default="RocketPFN",
+                   help="name of our column; 'FlatPFN' for run.py --method flat")
     args = p.parse_args()
+    ME = args.label
 
     from aeon.benchmarking.results_loaders import get_estimator_results_as_array
     from scipy.stats import wilcoxon
@@ -89,7 +92,7 @@ def main() -> int:
     # complete matrix rather than a ragged one.
     have = [d for d in datasets if d in mine.index]
     table = published.loc[have].copy()
-    table["RocketPFN"] = mine.loc[have, "mean"]
+    table[ME] = mine.loc[have, "mean"]
 
     # rank(ascending=False) -> rank 1 is the most accurate. Ties share the mean
     # rank, which is the convention the CD diagram assumes.
@@ -98,37 +101,40 @@ def main() -> int:
 
     lines: list[str] = []
     add = lines.append
-    add("# RocketPFN on UCR — reproduction\n")
+    add(f"# {ME} on UCR\n")
     add(f"- Datasets: **{len(have)}** of {cfg['n']} "
-        f"(stratified from a pool of {cfg['pool_size']}, seed {cfg['seed']})")
+        f"(pool of {cfg['pool_size']}, seed {cfg['seed']})")
+    missing = [d for d in datasets if d not in mine.index]
+    if missing:
+        add(f"- Not in the ranking (failed or not run): {', '.join(missing)}")
     add(f"- Resamples: **{args.resamples}** (resample 0 is the archive default split)")
     add(f"- Comparators: {', '.join(comparators)} — published results, not rerun")
-    add("- **Deviation:** TabPFN v3 here; the paper used v2.5\n")
+    add("- TabPFN v3 here; the paper used v2.5\n")
 
     add("## Average rank (lower is better)\n")
     add("| method | avg rank | mean accuracy |")
     add("|---|---|---|")
     for m, r in avg_rank.items():
-        add(f"| {'**' + m + '**' if m == 'RocketPFN' else m} | {r:.2f} | "
+        add(f"| {'**' + m + '**' if m == ME else m} | {r:.2f} | "
             f"{table[m].mean():.4f} |")
 
-    add("\n## RocketPFN vs HC2\n")
+    add(f"\n## {ME} vs HC2\n")
     if "HC2" in table:
-        diff = table["RocketPFN"] - table["HC2"]
+        diff = table[ME] - table["HC2"]
         # scipy, not aeon.benchmarking.stats.wilcoxon_test: aeon returns a
         # ONE-SIDED p per ordered pair, so its 0.96 reads as "not significant"
         # when it actually means HC2 > RocketPFN at one-sided p = 0.04. The
         # paper's test - and the honest one here - is two-sided.
-        stat, pval = wilcoxon(table["RocketPFN"], table["HC2"])
-        add(f"- mean accuracy: RocketPFN {table['RocketPFN'].mean():.4f} "
+        stat, pval = wilcoxon(table[ME], table["HC2"])
+        add(f"- mean accuracy: {ME} {table[ME].mean():.4f} "
             f"vs HC2 {table['HC2'].mean():.4f}")
-        add(f"- RocketPFN wins on {int((diff > 0).sum())}, loses {int((diff < 0).sum())}, "
+        add(f"- {ME} wins on {int((diff > 0).sum())}, loses {int((diff < 0).sum())}, "
             f"ties {int((diff == 0).sum())}")
         add(f"- Wilcoxon signed-rank (two-sided) p = {pval:.4f}"
-            + ("" if pval >= 0.05 else " - HC2 significantly better"))
+            + ("" if pval >= 0.05 else " - significant"))
 
     add("\n## Per-dataset accuracy\n")
-    cols = ["RocketPFN"] + comparators
+    cols = [ME] + comparators
     add("| dataset | type | " + " | ".join(cols) + " | n_resamples |")
     add("|---" * (len(cols) + 3) + "|")
     types = {d["name"]: d["type"] for d in cfg["datasets"]}
@@ -149,15 +155,16 @@ def main() -> int:
     add(f"- median TabPFN time: {t_pfn.median():.1f}s")
     add(f"- total GPU time measured: {t_total.sum() / 3600:.2f}h")
 
-    add("\n## Deviations from the paper\n")
+    add("\n## Notes\n")
     add("- **TabPFN v3** (`tabpfn` 8.1.0), not the paper's v2.5.")
-    add("- **20 datasets**, not 92 — a stratified sample fixed in `configs/ucr20.json` "
-        "before any result existed.")
-    add("- v3 shows each ensemble member only ~200 features and auto-scales "
-        "`n_estimators` 8 -> 10 to cover Rocket's 2000, so one group is ~10 forward "
-        "passes rather than one.")
-    add("- Installing `aeon` moved the shared env: pandas 3.0.5 -> 2.3.3, "
-        "numpy 2.4.6 -> 2.3.5, scikit-learn 1.9.0 -> 1.8.0.")
+    if ME == "RocketPFN":
+        add("- v3 shows each ensemble member only ~200 features and auto-scales "
+            "`n_estimators` 8 -> 10 to cover Rocket's 2000, so one group is ~10 forward "
+            "passes rather than one.")
+    else:
+        add("- Raw series values as-is, one column per time step, library defaults. "
+            "v3 refuses >2000 features, so series longer than 2000 fail by design; "
+            "the paper's flat comparison also excludes them (90 datasets).")
     add("- Baselines are published numbers, never rerun, so only our column is new.")
 
     try:
