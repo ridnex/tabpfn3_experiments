@@ -15,10 +15,8 @@
 # Usage: sbatch scripts/run_flatpfn.sbatch [START] [END]   (inclusive, default 0 0)
 set -euo pipefail
 source /ibex/user/zharkyy/TabPFN/scripts/env.sh
-# env.sh points PROJ at the main checkout, which is on another branch. This code
-# lives in the flatpfn worktree; the .ts cache is gitignored and stays in main.
-PROJ=/ibex/user/zharkyy/TabPFN-flatpfn
-DATA=/ibex/user/zharkyy/TabPFN/data/ucr
+# env.sh sets PROJ to the main checkout, which must be on the flatpfn branch.
+DATA="$PROJ/data/ucr"
 
 START="${1:-0}"
 END="${2:-0}"
