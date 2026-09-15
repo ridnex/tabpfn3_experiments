@@ -50,6 +50,11 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--datasets", default=str(ROOT / "configs" / "ucr20.json"))
     p.add_argument("--resample", type=int, default=0)
+    p.add_argument(
+        "--method", choices=["rocketpfn", "flat"], default="rocketpfn",
+        help="flat = plain TabPFN on the raw series (tsc/flatpfn.py), the "
+             "paper's no-encoding control. --groups/--kernels are ignored.",
+    )
     p.add_argument("--groups", type=int, default=10)
     p.add_argument("--kernels", type=int, default=1000)
     p.add_argument("--device", default="cuda")
@@ -78,7 +83,19 @@ def main() -> int:
     from aeon.benchmarking.resampling import stratified_resample_data
     from aeon.datasets import load_classification
 
-    from tsc.rocketpfn import RocketPFNClassifier
+    if args.method == "flat":
+        from tsc.flatpfn import FlatPFNClassifier
+
+        def make_clf(seed, n_jobs):
+            return FlatPFNClassifier(device=args.device, random_state=seed, n_jobs=n_jobs)
+    else:
+        from tsc.rocketpfn import RocketPFNClassifier
+
+        def make_clf(seed, n_jobs):
+            return RocketPFNClassifier(
+                n_groups=args.groups, n_kernels=args.kernels,
+                device=args.device, random_state=seed, n_jobs=n_jobs,
+            )
 
     if args.device == "cuda" and not torch.cuda.is_available():
         # Falling back to CPU would still produce numbers, just 50x slower ones
@@ -109,7 +126,8 @@ def main() -> int:
     suffix = f"_s{args.shard}" if args.nshards > 1 else ""
     out_path = (
         Path(args.out) if args.out
-        else ROOT / "results" / "rocketpfn" / f"resample_{args.resample:02d}{suffix}.csv"
+        else ROOT / "results" / ("flatpfn" if args.method == "flat" else "rocketpfn")
+        / f"resample_{args.resample:02d}{suffix}.csv"
     )
     # Resume rather than redo: a task that hits its walltime keeps every dataset
     # it finished, and resubmitting picks up where it stopped. Matters more than
@@ -133,11 +151,14 @@ def main() -> int:
         return 0
     gpu, host = gpu_name(), socket.gethostname()
     print(f"[run] {len(entries)} datasets  resample={args.resample}  "
-          f"G={args.groups}x{args.kernels}  device={args.device}  gpu={gpu}", flush=True)
+          + ("method=flat" if args.method == "flat" else f"G={args.groups}x{args.kernels}")
+          + f"  device={args.device}  gpu={gpu}", flush=True)
 
     # Pay the checkpoint download and CUDA context once, outside every timing.
     t0 = time.perf_counter()
-    warm = RocketPFNClassifier(n_groups=1, n_kernels=50, device=args.device, random_state=0)
+    warm = make_clf(0, 1)
+    if args.method != "flat":
+        warm.set_params(n_groups=1, n_kernels=50)
     Xw = np.random.RandomState(0).randn(16, 1, 32)
     warm.fit(Xw, np.tile([0, 1], 8))
     warm.predict(Xw[:4])
@@ -148,7 +169,7 @@ def main() -> int:
         name = e["name"]
         try:
             run_one(e, args, n_cpus, gpu, host, out_path, torch, tabpfn, aeon,
-                    load_classification, stratified_resample_data, RocketPFNClassifier)
+                    load_classification, stratified_resample_data, make_clf)
         except Exception as exc:
             # The pool is ordered cheapest-first, so the datasets that can
             # plausibly fail (an 8926-series context is 5x anything measured)
@@ -176,7 +197,7 @@ def main() -> int:
 
 
 def run_one(e, args, n_cpus, gpu, host, out_path, torch, tabpfn, aeon,
-            load_classification, stratified_resample_data, RocketPFNClassifier):
+            load_classification, stratified_resample_data, make_clf):
     """One dataset, one resample. Raising here loses this dataset and no more."""
     name = e["name"]
     Xtr, ytr = load_classification(name, split="train", extract_path=args.data_dir)
@@ -186,10 +207,7 @@ def run_one(e, args, n_cpus, gpu, host, out_path, torch, tabpfn, aeon,
             Xtr, ytr, Xte, yte, random_state=args.resample
         )
 
-    clf = RocketPFNClassifier(
-        n_groups=args.groups, n_kernels=args.kernels,
-        device=args.device, random_state=args.resample, n_jobs=n_cpus,
-    )
+    clf = make_clf(args.resample, n_cpus)
     t0 = time.perf_counter()
     clf.fit(Xtr, ytr)
     y_hat = clf.predict(Xte)
@@ -204,7 +222,8 @@ def run_one(e, args, n_cpus, gpu, host, out_path, torch, tabpfn, aeon,
         "n_classes": len(np.unique(ytr)),
         "accuracy": float(acc),
         "balanced_accuracy": float(balanced_accuracy_score(yte, y_hat)),
-        "n_groups": args.groups, "n_kernels": args.kernels,
+        "n_groups": "" if args.method == "flat" else args.groups,
+        "n_kernels": "" if args.method == "flat" else args.kernels,
         # One number per group under v3's auto-scaling; joined rather than
         # averaged so an outlier group stays visible.
         "tabpfn_n_estimators": "|".join(str(x) for x in clf.n_estimators_),
